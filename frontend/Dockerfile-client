@@ -1,0 +1,24 @@
+FROM node:18-alpine3.15 as build
+
+RUN apk add --no-cache protoc
+
+WORKDIR /app
+
+ENV protoc_gen_grpc_web=./node_modules/.bin/protoc-gen-grpc-web
+
+COPY ./package.json .
+COPY ./proto/streaming.proto .
+
+RUN npm install
+
+COPY . .
+
+RUN mkdir -p ./src/proto
+RUN protoc -I=. streaming.proto \
+  --plugin=protoc-gen-grpc-web=${protoc_gen_grpc_web} \
+  --js_out=import_style=commonjs:./src/proto \
+  --grpc-web_out=import_style=typescript,mode=grpcwebtext:./src/proto
+
+
+
+CMD ["npm","start"]

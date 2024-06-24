@@ -15,7 +15,7 @@ services:
       - "50051:50051"
   client:
     build:
-      context: ./client
+      context: ./frontend
       dockerfile: Dockerfile-client
     ports:
       - "3000:3000"
