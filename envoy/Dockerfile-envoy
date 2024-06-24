@@ -1,0 +1,22 @@
+FROM alpine:3.15.1 AS build
+
+WORKDIR /app
+
+# Install protoc and wget to download the protobuf include files
+RUN apk add --no-cache protoc wget
+
+# Download the standard Protobuf include files
+RUN mkdir -p /usr/local/include/google/protobuf && \
+    wget -q -O /usr/local/include/google/protobuf/empty.proto https://raw.githubusercontent.com/protocolbuffers/protobuf/main/src/google/protobuf/empty.proto
+
+COPY ./proto/streaming.proto .
+
+# Build proto descriptor
+RUN protoc -I=/usr/local/include -I=. --include_imports --include_source_info \
+    --descriptor_set_out=streaming.pb streaming.proto
+
+FROM envoyproxy/envoy:v1.22.0
+
+COPY --from=build /app/streaming.pb /tmp/
+
+COPY ./envoy.yaml /etc/envoy/envoy.yaml

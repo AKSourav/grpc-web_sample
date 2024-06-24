@@ -1,0 +1,21 @@
+services:
+  envoy_service:
+    build:
+      context: ./envoy
+      dockerfile: Dockerfile-envoy
+    ports:
+      - "8000:8000"
+    # volumes:
+    #   - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
+  backend_service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-backend
+    ports:
+      - "50051:50051"
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile-client
+    ports:
+      - "3000:3000"
